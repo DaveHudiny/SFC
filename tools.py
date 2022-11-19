@@ -42,8 +42,8 @@ def load_mnist():
         test_x = pickle.load(inp)
     with open("./test/test_mnist/test_y.pkl", "rb") as inp:
         test_y = pickle.load(inp)
-    network = NNET(input_size = 784, number_of_layers = 4, layer_types = [tanh, tanh, tanh, tanh], layer_sizes=[300, 300, 300, 10], layer_ders=[tanh_der, tanh_der, tanh_der, tanh_der])
-    network.learn(train_x[0:700], train_y[0:700], 50, learning_rate=0.1)
+    network = NNET(input_size = 784, number_of_layers = 4, layer_types = [tanh, tanh, tanh, tanh], layer_sizes=[50, 50, 50, 10], layer_ders=[tanh_der, tanh_der, tanh_der, tanh_der])
+    network.learn(train_x[0:1000], train_y[0:1000], 500, learning_rate=0.001)
     count_success(network, test_x[0:50], test_y[0:50])
 
     

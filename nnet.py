@@ -97,18 +97,19 @@ class NNET:
     def learn(self, inputs, labels, iterations, learning_rate):
         errors = []
         for i in range(iterations):
+            error_val = 0
             for input, label in zip(inputs, labels):
                 output = self.forward_propagation(input)
                 # error = self.object_func_der(label, output)
                 
                 error = soft_max(output)
-                error_val = cross_entropy(error, label)
-                errors.append(error_val)
+                error_val += cross_entropy(error, label)
                 error = cross_entropy_der(error, label)
                 self.backward_propagation(error, learning_rate)
-        x = np.linspace(0, iterations, len(errors))
-        plt.plot(x, errors)
-        plt.show()
+            errors.append(error_val)
+
+        plt.plot(errors)
+        plt.savefig("img.png")
 
 
     
