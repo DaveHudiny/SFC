@@ -1,6 +1,6 @@
 import numpy as np
 from nnet import *
-from keras.datasets import mnist
+import pickle
 
 def generate_majority(samples_number = 200, input_size = 5, output_size = 3):
     train_x = []
@@ -34,10 +34,19 @@ def count_success(network, test_x, test_y):
     print("Success rate:", successful/len(test_y)*100, "%")
 
 def load_mnist():
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    print(x_train.shape)
-    np.savez("train_x.npz", x_train=x_train)
-    y_train.savez("train_y")
+    with open("./train/train_mnist/train_x.pkl", "rb") as inp:
+        train_x = pickle.load(inp)
+    with open("./train/train_mnist/train_y.pkl", "rb") as inp:
+        train_y = pickle.load(inp)
+    with open("./test/test_mnist/test_x.pkl", "rb") as inp:
+        test_x = pickle.load(inp)
+    with open("./test/test_mnist/test_y.pkl", "rb") as inp:
+        test_y = pickle.load(inp)
+    network = NNET(input_size = 784, number_of_layers = 4, layer_types = [tanh, tanh, tanh, tanh], layer_sizes=[300, 300, 300, 10], layer_ders=[tanh_der, tanh_der, tanh_der, tanh_der])
+    network.learn(train_x[0:700], train_y[0:700], 50, learning_rate=0.1)
+    count_success(network, test_x[0:50], test_y[0:50])
+
+    
 
     return
     network = NNET(input_size = 784, number_of_layers = 3, layer_types = [tanh, tanh, tanh], layer_sizes = [100, 100, 10], layer_ders = [tanh_der, tanh_der, tanh_der])
