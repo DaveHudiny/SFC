@@ -2,7 +2,7 @@ import numpy as np
 from nnet import *
 import pickle
 
-def generate_majority(samples_number = 200, input_size = 5, output_size = 3):
+def generate_majority(samples_number = 200, input_size = 3, output_size = 3):
     train_x = []
     train_y = []
     if input_size <= 0 or output_size <= 0:
@@ -42,22 +42,32 @@ def load_mnist():
         test_x = pickle.load(inp)
     with open("./test/test_mnist/test_y.pkl", "rb") as inp:
         test_y = pickle.load(inp)
-    network = NNET(input_size = 784, number_of_layers = 4, layer_types = [tanh, tanh, tanh, tanh], layer_sizes=[50, 50, 50, 10], layer_ders=[tanh_der, tanh_der, tanh_der, tanh_der])
-    network.learn(train_x[0:1000], train_y[0:1000], 500, learning_rate=0.001)
-    count_success(network, test_x[0:50], test_y[0:50])
+    train_x = train_x / 255.0
+    train_x -= 0.5
+    test_x = test_x / 255.0
+    test_x -= 0.5
 
+    network = NNET(input_size = 784, number_of_layers = 3, layer_types = [ReLU, ReLU, soft_max], layer_sizes=[128, 128, 10], layer_ders=[ReLU_der, ReLU_der, softmax_der])
+    for i in range(20):
+        print(f"Metapocha {i}")
+        network.learn(train_x[0:800], train_y[0:800], 3, learning_rate=0.005)
+        network.learn(train_x[5000:5800], train_y[5000:5800], 3, learning_rate=0.005)
+        network.learn(train_x[3000:3800], train_y[3000:3800], 3, learning_rate=0.005)
+        network.learn(train_x[12000:12800], train_y[12000:12800], 3, learning_rate=0.005)
+    
+    
+    count_success(network, test_x[0:1000], test_y[0:1000])
+    network.save_nnet("mnist_network.pkl")
     
 
-    return
-    network = NNET(input_size = 784, number_of_layers = 3, layer_types = [tanh, tanh, tanh], layer_sizes = [100, 100, 10], layer_ders = [tanh_der, tanh_der, tanh_der])
-    network.learn(train_x, train_y)
+   
 
+# load_mnist()
+# exit()
+train_x, train_y = generate_majority(samples_number=1000, output_size=5)
+test_x, test_y = generate_majority(samples_number=1000, output_size=5)
 
-load_mnist()
-exit()
-train_x, train_y = generate_majority(samples_number=500, output_size=4)
-test_x, test_y = generate_majority(samples_number=50, output_size=4)
+network = NNET(input_size = 3, number_of_layers = 3, layer_types = [ReLU, ReLU, soft_max], layer_sizes = [50, 50, 5], layer_ders = [ReLU_der, ReLU_der, softmax_der])
 
-network = NNET(input_size = 5, number_of_layers = 3, layer_types = [tanh, tanh, tanh], layer_sizes = [100, 100, 4], layer_ders = [tanh_der, tanh_der, tanh_der])
-network.learn(train_x, train_y, 1000, 0.01)
+network.learn(train_x, train_y, 200, 0.005)
 count_success(network, test_x, test_y)

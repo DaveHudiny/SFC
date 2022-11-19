@@ -1,5 +1,4 @@
 import numpy as np
-import mnist
 from functions import *
 import pickle
 import matplotlib.pyplot as plt
@@ -11,6 +10,9 @@ class LAYER:
         if type == "FC":
             self.weights = weights
             self.biases = biases
+            self.momentum = 0
+            self.momentum_bias = 0
+            self.alpha = 0.6
         elif type == "Act":
             self.activation = activation
             self.activation_der = activation_der
@@ -42,8 +44,12 @@ class LAYER:
         if self.type == "FC":
             input_error = np.dot(output_error, self.weights.T)
             weights_error = np.dot(self.input_mem.T, output_error)
+            # change_weight = alpha * self.momentum - learning_rate * weights_error
             self.weights -= learning_rate * weights_error
+            # self.momentum_weights = change_weight
+            # change_bias = alpha * self.momentum_bias - 
             self.biases -= learning_rate * output_error
+            # self.momentum_bias = change_bias
             return input_error
         elif self.type == "Act":
             return self.activation_der(self.input_mem) * output_error
@@ -60,17 +66,17 @@ class NNET:
 
     def __init__(self, input_size = 0, number_of_layers = 0, layer_types = [], layer_sizes = [], layer_ders = [], default_weights = None, 
                  default_biases = None, object_func = mse, object_func_der = mse_der, normalize_output = lambda x: x):
-        self.number_of_layers = number_of_layers
-        self.layer_sizes = layer_sizes
-        self.layer_types = layer_types
+        # self.number_of_layers = number_of_layers
+        # self.layer_sizes = layer_sizes
+        # self.layer_types = layer_types
         self.layers = []
         for i in range(number_of_layers):
             if default_weights != None:
                 weights = default_weights[i]
                 bias = default_biases[i]
             elif i == 0:
-                weights = 2*np.random.rand(input_size, layer_sizes[i]) - 1
-                bias = 2*np.random.rand(1, layer_sizes[i]) - 1
+                weights = np.random.rand(input_size, layer_sizes[i]) - 0.5
+                bias = np.random.rand(1, layer_sizes[i]) - 0.5
             elif i > 0:
                 weights = 2*np.random.rand(layer_sizes[i - 1], layer_sizes[i]) - 1
                 bias = 2*np.random.rand(1, layer_sizes[i]) - 1
@@ -87,10 +93,9 @@ class NNET:
     def predict(self, input):
         output = self.forward_propagation(input)
         return np.argmax(soft_max(output)), soft_max(output)
-        
 
     def backward_propagation(self, input, learning_rate):
-        for layer in reversed(self.layers):
+        for layer in reversed(self.layers[:-1]):
             input = layer.backward_propagation(input, learning_rate)
         return input
 
@@ -101,12 +106,13 @@ class NNET:
             for input, label in zip(inputs, labels):
                 output = self.forward_propagation(input)
                 # error = self.object_func_der(label, output)
-                
-                error = soft_max(output)
-                error_val += cross_entropy(error, label)
-                error = cross_entropy_der(error, label)
+                logits = soft_max(output)
+                error_val += cross_entropy(logits, label)
+                error = cross_entropy_der(output, label)
                 self.backward_propagation(error, learning_rate)
             errors.append(error_val)
+            if i % 20 == 0:
+                print(f"Epocha: {i}, error: {error_val}")
 
         plt.plot(errors)
         plt.savefig("img.png")
