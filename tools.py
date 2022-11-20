@@ -39,13 +39,13 @@ def load_mnist():
     test_x = test_x / 255.0
     test_x -= 0.5
 
-    network = NNET(input_size = 784, number_of_layers = 3, layer_types = [ReLU, ReLU, soft_max], layer_sizes=[128, 128, 10], layer_ders=[ReLU_der, ReLU_der, softmax_der])
-    for i in range(20):
+    network = NNET(input_size = 784, number_of_layers = 3, layer_types = [ReLU, ReLU, soft_max], layer_sizes=[256, 256, 10], layer_ders=[ReLU_der, ReLU_der, softmax_der])
+    for i in range(18):
         print(f"Metapocha {i}")
-        network.learn(train_x[0:800], train_y[0:800], 3, learning_rate=0.005)
-        network.learn(train_x[5000:5800], train_y[5000:5800], 3, learning_rate=0.005)
-        network.learn(train_x[3000:3800], train_y[3000:3800], 3, learning_rate=0.005)
-        network.learn(train_x[12000:12800], train_y[12000:12800], 3, learning_rate=0.005)
+        network.learn(train_x[0:800], train_y[0:800], 5, learning_rate=0.006)
+        network.learn(train_x[5000:5800], train_y[5000:5800], 5, learning_rate=0.006)
+        network.learn(train_x[3000:3800], train_y[3000:3800], 5, learning_rate=0.006)
+        network.learn(train_x[12000:12800], train_y[12000:12800], 5, learning_rate=0.006)
     
     
     count_success(network, test_x[0:1000], test_y[0:1000])
@@ -54,8 +54,8 @@ def load_mnist():
 
    
 
-# load_mnist()
-# exit()
+load_mnist()
+exit()
 
 if __name__ == "__main__":
     train_x, train_y = generate_majority(samples_number=5000, input_size=10, output_size=10)

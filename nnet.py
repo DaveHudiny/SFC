@@ -36,9 +36,11 @@ class NNET:
                 bias = default_biases[i]
             elif i == 0:
                 weights = np.random.rand(input_size, layer_sizes[i]) - 0.5
+                weights /= 2
                 bias = np.random.rand(1, layer_sizes[i]) - 0.5
             elif i > 0:
                 weights = 2*np.random.rand(layer_sizes[i - 1], layer_sizes[i]) - 1
+                weights /= 2
                 bias = 2*np.random.rand(1, layer_sizes[i]) - 1
             self.layers.append(Layer("FC", weights, bias, None, None))
             self.layers.append(Layer("Act", weights, bias, layer_types[i], layer_ders[i]))
