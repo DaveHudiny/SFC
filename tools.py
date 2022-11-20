@@ -1,6 +1,7 @@
 import numpy as np
 from nnet import *
 import pickle
+from functions import count_success
 
 def generate_majority(samples_number = 200, input_size = 3, output_size = 3):
     train_x = []
@@ -23,15 +24,6 @@ def generate_majority(samples_number = 200, input_size = 3, output_size = 3):
         new_y = np.array([new_y])
         train_y.append(new_y)
     return np.array(train_x), np.array(train_y)
-
-def count_success(network, test_x, test_y):
-    successful = 0
-    for x, y in zip(test_x, test_y):
-        y_pred, _ = network.predict(x)
-        if y_pred == np.argmax(y):
-            successful += 1
-    print("Successful was", successful, "from", len(test_y))
-    print("Success rate:", successful/len(test_y)*100, "%")
 
 def load_mnist():
     with open("./train/train_mnist/train_x.pkl", "rb") as inp:
@@ -64,10 +56,16 @@ def load_mnist():
 
 # load_mnist()
 # exit()
-train_x, train_y = generate_majority(samples_number=1000, output_size=5)
-test_x, test_y = generate_majority(samples_number=1000, output_size=5)
 
-network = NNET(input_size = 3, number_of_layers = 3, layer_types = [ReLU, ReLU, soft_max], layer_sizes = [50, 50, 5], layer_ders = [ReLU_der, ReLU_der, softmax_der])
+if __name__ == "__main__":
+    train_x, train_y = generate_majority(samples_number=5000, input_size=10, output_size=10)
+    test_x, test_y = generate_majority(samples_number=1000, input_size=10, output_size=10)
+    train_x = train_x / 10.0
+    test_x = test_x / 10.0
+    train_x -= 0.5
+    test_x -= 0.5
+    network = NNET(input_size = 10, number_of_layers = 4, layer_types = [tanh, ReLU, ReLU, soft_max], layer_sizes = [150, 100, 100, 10], layer_ders = [tanh_der, ReLU_der, ReLU_der, softmax_der])
 
-network.learn(train_x, train_y, 200, 0.005)
-count_success(network, test_x, test_y)
+    network.learn(train_x, train_y, 300, 0.001)
+    count_success(network, test_x, test_y)
+    network.save_nnet("majority10.pkl")

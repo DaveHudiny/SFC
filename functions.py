@@ -1,5 +1,14 @@
 import numpy as np
 
+def count_success(network, test_x, test_y):
+    successful = 0
+    for x, y in zip(test_x, test_y):
+        y_pred, _ = network.predict(x)
+        if y_pred == np.argmax(y):
+            successful += 1
+    print("Successful was", successful, "from", len(test_y))
+    print("Success rate:", successful/len(test_y)*100, "%")
+
 def tanh_prime(x):
     return 1-np.tanh(x)**2
 
@@ -28,14 +37,11 @@ def softmax_der(x):
     I = np.eye(x.shape[0])
     return soft_max(x) * (I - soft_max(x).T)
 
-def mse(y_true, y_pred):
-    return np.mean(np.power(y_true-y_pred, 2))
+def mse(output, expected_output):
+    return np.mean(np.power(expected_output-output, 2))
 
-def mse_prime(y_true, y_pred):
-    return 2*(y_pred-y_true)/y_true.size
-
-def mse_der(y_true, y_pred):
-    return 2*(y_pred-y_true)/y_true.size
+def mse_der(output, expected_output):
+    return 2*(output-expected_output)/expected_output.size
 
 def cross_entropy(output, expected_output):
     log_likelihood = expected_output * np.log(output)

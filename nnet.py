@@ -1,59 +1,18 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# Author: David Hudak
+# File: main.py
+# Login: xhudak03
+# Course: SFC
+# School: BUT FIT
+# Short description: This file contains implementation of neural network
+
 import numpy as np
 from functions import *
 import pickle
 import matplotlib.pyplot as plt
-
-
-class LAYER:
-    def __init__(self, type, weights, biases, activation, activation_der):
-        self.type = type
-        if type == "FC":
-            self.weights = weights
-            self.biases = biases
-            self.momentum = 0
-            self.momentum_bias = 0
-            self.alpha = 0.6
-        elif type == "Act":
-            self.activation = activation
-            self.activation_der = activation_der
-    
-    def __str__(self):
-        if self.type == "FC":
-            print("Váhy", self.weights)
-            print("Biasy", self.biases)
-            return ""
-        elif self.type == "Act":
-            print(self.activation(0))
-            return ""
-        else:
-            return "Unknown"
-    
-    def forward_propagation(self, layer_input):
-        if self.type == "FC":
-            self.input_mem = layer_input
-            self.output_mem = np.dot(layer_input, self.weights) + self.biases
-            return self.output_mem
-        elif self.type == "Act":
-            self.input_mem = layer_input
-            self.output_mem = self.activation(layer_input)
-            return self.output_mem
-        else:
-            print("Dont know this layer")
-    
-    def backward_propagation(self, output_error, learning_rate):
-        if self.type == "FC":
-            input_error = np.dot(output_error, self.weights.T)
-            weights_error = np.dot(self.input_mem.T, output_error)
-            # change_weight = alpha * self.momentum - learning_rate * weights_error
-            self.weights -= learning_rate * weights_error
-            # self.momentum_weights = change_weight
-            # change_bias = alpha * self.momentum_bias - 
-            self.biases -= learning_rate * output_error
-            # self.momentum_bias = change_bias
-            return input_error
-        elif self.type == "Act":
-            return self.activation_der(self.input_mem) * output_error
-
+from layer import Layer
 
 class NNET:
     def load_nnet(file):
@@ -65,10 +24,11 @@ class NNET:
             pickle.dump(self, save, pickle.HIGHEST_PROTOCOL)
 
     def __init__(self, input_size = 0, number_of_layers = 0, layer_types = [], layer_sizes = [], layer_ders = [], default_weights = None, 
-                 default_biases = None, object_func = mse, object_func_der = mse_der, normalize_output = lambda x: x):
+                 default_biases = None, object_func = cross_entropy, object_func_der = cross_entropy_der):
         # self.number_of_layers = number_of_layers
         # self.layer_sizes = layer_sizes
         # self.layer_types = layer_types
+        self.input_size = input_size
         self.layers = []
         for i in range(number_of_layers):
             if default_weights != None:
@@ -80,8 +40,8 @@ class NNET:
             elif i > 0:
                 weights = 2*np.random.rand(layer_sizes[i - 1], layer_sizes[i]) - 1
                 bias = 2*np.random.rand(1, layer_sizes[i]) - 1
-            self.layers.append(LAYER("FC", weights, bias, None, None))
-            self.layers.append(LAYER("Act", weights, bias, layer_types[i], layer_ders[i]))
+            self.layers.append(Layer("FC", weights, bias, None, None))
+            self.layers.append(Layer("Act", weights, bias, layer_types[i], layer_ders[i]))
         self.object_func = object_func
         self.object_func_der = object_func_der
     
@@ -99,7 +59,7 @@ class NNET:
             input = layer.backward_propagation(input, learning_rate)
         return input
 
-    def learn(self, inputs, labels, iterations, learning_rate):
+    def learn(self, inputs, labels, iterations, learning_rate, learn_image = "img.png", error_print = 20):
         errors = []
         for i in range(iterations):
             error_val = 0
@@ -107,29 +67,31 @@ class NNET:
                 output = self.forward_propagation(input)
                 # error = self.object_func_der(label, output)
                 logits = soft_max(output)
-                error_val += cross_entropy(logits, label)
-                error = cross_entropy_der(output, label)
+                error_val += self.object_func(logits, label)
+                error = self.object_func_der(output, label)
                 self.backward_propagation(error, learning_rate)
             errors.append(error_val)
-            if i % 20 == 0:
+            if i % error_print == 0:
                 print(f"Epocha: {i}, error: {error_val}")
 
         plt.plot(errors)
-        plt.savefig("img.png")
+        plt.xlabel("Počet epoch")
+        plt.ylabel("Velikost chyby")
+        plt.title("Celková chyba dle epoch")
+        plt.savefig(learn_image)
+
 
 
     
 
 if __name__ == "__main__":
-    network = NNET(input_size = 3, number_of_layers = 2, layer_types = [tanh, ReLU], layer_sizes = [10, 3], layer_ders = [tanh_der, ReLU_der])
-    x_train = np.array([[[0,0, 0]], [[0,1, 0]], [[1,0, 1]], [[1,1, 1]], [[2, 2, 2]], [[1, 0, 0]], [[0, 0, 1]], [[1, 1, 0]]])
-    y_train = np.array([[[1, 0, 0]], [[1, 0, 0]], [[0, 1, 0]], [[0, 1, 0]], [[0, 0, 1]], [[1, 0, 0]], [[1, 0, 0]], [[0, 1, 0]]])
+    network = NNET(input_size = 3, number_of_layers = 2, layer_types = [tanh, ReLU], layer_sizes = [10, 1], 
+                   layer_ders = [tanh_der, ReLU_der], object_func=mse, object_func_der=mse_der)
+    x_train = np.array([[[0, 0]], [[0, 1]], [[1, 0]], [[1, 1]]])
+    y_train = np.array([[[0]], [[1]], [[1]], [[0]]])
     # network = NNET.load_nnet("file.pkl")
     network.learn(x_train, y_train, 1000, 0.1)
-    network.predict([1, 0, 0])
-    network.predict([0, 0, 0])
-    network.predict([1, 1, 1])
-    network.predict([2, 2, 2])
+    count_success(network, x_train, y_train)
     network.save_nnet("file.pkl")
     # print(cross_entropy(network.forward_propagation(np.array([1, 0])), np.array([1, 0, 0, 0, 0])))
     pass
