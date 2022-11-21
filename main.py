@@ -18,13 +18,18 @@ import custom_net as cn
 
 current_network = None
 loss_img = "loss.png"
+input_size = -1
+task = None
+
+train_x, train_y , test_x, test_y = None, None, None, None
 
 
 def print_loaded():
     print(f"Vítejte v programu pro práci s neuronovými sítěmi. \n\nAktuální stav globálních proměnných:")
     print(f"  Právě máte načtenou síť: {current_network}")
     print(f"  Grafy vývoje chybové funkce se aktuálně nachází v souboru: {loss_img}")
-    print(f"  ")
+    print(f"  Počet aktuálních vstupů sítě/úlohy {input_size} (pokud -1, vstup nebyl určen)")
+    print(f"  Aktuální úloha {task}")
 
 def print_menu():
     print("Co si přejete dělat?")
@@ -36,7 +41,7 @@ def print_menu():
     print()
     pass
 
-def choose_tast():
+def choose_task():
     print("Vyberte jednu z následujících úloh:")
     print("  m) MNIST")
 
@@ -75,7 +80,6 @@ def clear_screen():
     else:
         os.system("clear")
 
-
 def selection(x):
     if len(x) == 0 or x[0] in ["q", "Q"]:
         return 1
@@ -86,6 +90,10 @@ def selection(x):
     elif x[0] in["c", "C"]:
         global current_network
         current_network = cn.create_network()
+        if current_network != None:
+            input_size = current_network.input_size
+    elif x[0] in ["t", "T"]:
+        choose_task()
     return 0
         
 

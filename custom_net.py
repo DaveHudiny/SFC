@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# Author: David Hudak
+# File: main.py
+# Login: xhudak03
+# Course: SFC
+# School: BUT FIT
+# Short description: This file contains dialog implementation for project to course SFC
+
 from nnet import NNET
 import tools
 from functions import *
@@ -55,14 +65,14 @@ def create_network():
     except:
         print("Nejedná se o legální hodnotu")
         input("\nStiskněte enter pro pokračování...")
-        return
+        return None
     number_of_layers = input("Zadejte počet skrytých vrstev sítě: ")
     try:
         number_of_layers = int(number_of_layers)
     except:
         print("Nejedná se o legální hodnotu")
         input("\nStiskněte enter pro pokračování...")
-        return
+        return None
     layer_sizes = []
     layer_types = []
     layer_types_der = []
@@ -74,7 +84,7 @@ def create_network():
         except:
             print("Nejedná se o legální hodnotu")
             input("\nStiskněte enter pro pokračování...")
-            return
+            return None
         layer_sizes.append(layer_size)
         layer_type = input(f"Aktivační funkce skryté vrstvy {i + 1}: ")
         func, func_der = choose_function(layer_type)
@@ -86,7 +96,7 @@ def create_network():
     except:
         print("Nejedná se o legální hodnotu")
         input("\nStiskněte enter pro pokračování...")
-        return
+        return None
     layer_sizes.append(number_of_outputs)
     activation_list_output()
     output_function = input("Zvolte výstupní aktivační funkci: ")
