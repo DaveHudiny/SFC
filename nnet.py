@@ -15,28 +15,35 @@ import matplotlib.pyplot as plt
 from layer import Layer
 
 class NNET:
-    def load_nnet(file):
-        with open(file, "rb") as inp:
-            try:
-                nnet = pickle.load(inp)
-            except:
-                return None
-            if type(nnet) != NNET:
-                print(type(nnet))
-                return None
-            nnet.name = file
-            return nnet
+    """
+    Universal neural network class
 
-    def save_nnet(self, file):
-        with open(file, 'wb') as save:
-            pickle.dump(self, save, pickle.HIGHEST_PROTOCOL)
-            self.name = file
-
-    def __str__(self):
-        return self.name
-
+    Parameters
+    ----------
+    input_size : int
+        Size of neural network input
+    layer_types : list of function references
+        Determines activation functions of each layer (for example: [tanh, ReLU, soft_max])
+    layer_sizes : list of ints
+        Determines sizes of each layer (have to be of same length as layer_types)
+    layer_ders : list of function references
+        Determines derivations of activation functions (have to be same lenghts as layer_types)
+    default_weights : np.array
+        Default weights for each layer of neural network
+    default_biases : np.array
+        Default biases for each layer of neural network
+    object_func : function reference
+        Determines which loss function to use
+    object_func_der : function reference
+        Determines which loss function derivation for learning to use
+    debuff : float
+        Determines debuff for weight sizes -- sometimes the output of neural network is too because of
+        high values of network weights. This debuff makes: weights *= debuff
+    name: str
+        Determines name of neural network
+    """
     def __init__(self, input_size = 0, layer_types = [], layer_sizes = [], layer_ders = [], default_weights = None, 
-                 default_biases = None, object_func = cross_entropy, object_func_der = cross_entropy_der, debuff = 1,
+                 default_biases = None, object_func = cross_entropy, object_func_der = cross_entropy_der, debuff = 1.0,
                  name = "Custom"):
         # self.number_of_layers = number_of_layers
         # self.layer_sizes = layer_sizes
@@ -60,6 +67,24 @@ class NNET:
             self.layers.append(Layer("Act", weights, bias, layer_types[i], layer_ders[i]))
         self.object_func = object_func
         self.object_func_der = object_func_der
+
+    def load_nnet(file):
+        with open(file, "rb") as inp:
+            try:
+                nnet = pickle.load(inp)
+            except:
+                return None
+            if type(nnet) != NNET:
+                print(type(nnet))
+                return None
+            return nnet
+
+    def save_nnet(self, file):
+        with open(file, 'wb') as save:
+            pickle.dump(self, save, pickle.HIGHEST_PROTOCOL)
+
+    def __str__(self):
+        return self.name
     
     def forward_propagation(self, input):
         for layer in self.layers:
@@ -95,10 +120,6 @@ class NNET:
         plt.ylabel("Velikost chyby")
         plt.title("Celková chyba dle epoch")
         # plt.savefig(learn_image)
-
-
-
-    
 
 if __name__ == "__main__":
     network = NNET(input_size = 2, layer_types = [tanh, ReLU], layer_sizes = [10, 2], 

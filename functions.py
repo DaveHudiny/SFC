@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# Author: David Hudak
+# File: main.py
+# Login: xhudak03
+# Course: SFC
+# School: BUT FIT
+# Short description: This file contains functions implementation for project to course SFC
+
 import numpy as np
 
 def count_success(network, test_x, test_y):

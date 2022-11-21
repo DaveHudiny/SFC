@@ -27,13 +27,19 @@ def print_loaded():
 
 def print_menu():
     print("Co si přejete dělat?")
-    print("1) Vybrat úlohu")
+    print("T) Vybrat úlohu")
     print("C) Vytvořit vlastní síť")
     print("L) Načíst síť")
     print("S) Uložit síť")
     print("Q) Ukončit program")
     print()
     pass
+
+def choose_tast():
+    print("Vyberte jednu z následujících úloh:")
+    print("  m) MNIST")
+
+
 
 def load_network():
     file = input("Zadejte vstupní soubor: ")
@@ -88,9 +94,9 @@ def loss_function_list():
 def choose_function(x):
     if len(x) <= 0:
         return ReLU, ReLU_der
-    elif x[0] == "t":
+    elif x[0] in ["t", "T"]:
         return tanh, tanh_der
-    elif x[0] == "s":
+    elif x[0] == ["s", "S"]:
         return sigmoid, sigmoid_der
     else:
         return ReLU, ReLU_der
@@ -98,9 +104,9 @@ def choose_function(x):
 def choose_output_function(x):
     if len(x) <= 0:
         return soft_max, softmax_der
-    elif x[0] == "l":
+    elif x[0] in ["l", "L"]:
         return linear, linear_der
-    elif x[0] == "s":
+    elif x[0] in ["s", "S"]:
         return sigmoid, sigmoid_der
     else:
         return soft_max, softmax_der
@@ -108,7 +114,7 @@ def choose_output_function(x):
 def choose_loss_function(x):
     if len(x) <= 0:
         return cross_entropy, cross_entropy_der
-    elif x[0] == "m":
+    elif x[0] in ["m", "M"]:
         return mse, mse_der
     else:
         return cross_entropy, cross_entropy_der
