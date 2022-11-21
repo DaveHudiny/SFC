@@ -39,6 +39,7 @@ def print_menu():
     print("C) Vytvořit vlastní síť")
     print("L) Načíst síť")
     print("S) Uložit síť")
+    print("E) Uč síť")
     print("Q) Ukončit program")
     print()
     pass
@@ -89,6 +90,9 @@ def generate_majority():
                                                output_size=output_size)
     test_x, test_y = tools.generate_majority(samples_number=train_size, input_size=input_size,
                                                 output_size=output_size)
+
+def learn():
+    pass
 
 def choose_task():
     print_choose_task(True)
@@ -146,6 +150,9 @@ def clear_screen():
     else:
         os.system("clear")
 
+def learn():
+    print(f"Kolik prvků z datasetu si přejete využít? (Maximum {train_x.shape[0]}.)")
+
 def selection(x):
     if len(x) == 0 or x[0] in ["q", "Q"]:
         return 1
@@ -160,6 +167,8 @@ def selection(x):
             input_size = current_network.input_size
     elif x[0] in ["t", "T"]:
         choose_task()
+    elif x[0] in ["l", "L"]:
+        learn()
     return 0
         
 
