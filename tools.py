@@ -3,6 +3,8 @@ from nnet import *
 import pickle
 from functions import count_success
 
+np.seterr(all='raise')
+
 def generate_majority(samples_number = 200, input_size = 3, output_size = 3):
     train_x = []
     train_y = []
@@ -39,15 +41,26 @@ def load_mnist():
     test_x = test_x / 255.0
     test_x -= 0.5
 
-    network = NNET(input_size = 784, number_of_layers = 3, layer_types = [ReLU, ReLU, soft_max], layer_sizes=[256, 256, 10], layer_ders=[ReLU_der, ReLU_der, softmax_der])
-    for i in range(18):
-        print(f"Metapocha {i}")
-        network.learn(train_x[0:800], train_y[0:800], 5, learning_rate=0.006)
-        network.learn(train_x[5000:5800], train_y[5000:5800], 5, learning_rate=0.006)
-        network.learn(train_x[3000:3800], train_y[3000:3800], 5, learning_rate=0.006)
-        network.learn(train_x[12000:12800], train_y[12000:12800], 5, learning_rate=0.006)
-    
-    
+    network = NNET(input_size = 784, layer_types = [ReLU, soft_max], layer_sizes=[512, 10], 
+                   layer_ders=[ReLU_der, softmax_der])
+    success = False
+    debuff = 0.5
+    while success == False: 
+        try:
+            for i in range(10):
+                print(f"Metapocha {i}")
+                network.learn(train_x[0:1000], train_y[0:1000], 4, learning_rate=0.0019)
+                network.learn(train_x[5000:6000], train_y[5000:6000], 4, learning_rate=0.0019)
+                network.learn(train_x[3000:4000], train_y[3000:4000], 4, learning_rate=0.0019)
+                network.learn(train_x[12000:13000], train_y[12000:13000], 4, learning_rate=0.0019)
+            success = True
+        except:
+            
+            network = NNET(input_size = 784, layer_types = [ReLU, ReLU, ReLU, soft_max], layer_sizes=[256, 256, 256, 10], 
+                           layer_ders=[ReLU_der, ReLU_der, ReLU_der, softmax_der], debuff=debuff)
+            debuff *= 0.5
+            print("Bylo nutno snížit iniciální váhy")
+    plt.savefig("img.png")
     count_success(network, test_x[0:1000], test_y[0:1000])
     network.save_nnet("mnist_network.pkl")
     

@@ -23,24 +23,24 @@ class NNET:
         with open(file, 'wb') as save:
             pickle.dump(self, save, pickle.HIGHEST_PROTOCOL)
 
-    def __init__(self, input_size = 0, number_of_layers = 0, layer_types = [], layer_sizes = [], layer_ders = [], default_weights = None, 
-                 default_biases = None, object_func = cross_entropy, object_func_der = cross_entropy_der):
+    def __init__(self, input_size = 0, layer_types = [], layer_sizes = [], layer_ders = [], default_weights = None, 
+                 default_biases = None, object_func = cross_entropy, object_func_der = cross_entropy_der, debuff = 1):
         # self.number_of_layers = number_of_layers
         # self.layer_sizes = layer_sizes
         # self.layer_types = layer_types
         self.input_size = input_size
         self.layers = []
-        for i in range(number_of_layers):
+        for i in range(len(layer_sizes)):
             if default_weights != None:
                 weights = default_weights[i]
                 bias = default_biases[i]
             elif i == 0:
                 weights = np.random.rand(input_size, layer_sizes[i]) - 0.5
-                weights /= 2
+                weights *= debuff
                 bias = np.random.rand(1, layer_sizes[i]) - 0.5
             elif i > 0:
                 weights = 2*np.random.rand(layer_sizes[i - 1], layer_sizes[i]) - 1
-                weights /= 2
+                weights *= debuff
                 bias = 2*np.random.rand(1, layer_sizes[i]) - 1
             self.layers.append(Layer("FC", weights, bias, None, None))
             self.layers.append(Layer("Act", weights, bias, layer_types[i], layer_ders[i]))
@@ -80,7 +80,7 @@ class NNET:
         plt.xlabel("Počet epoch")
         plt.ylabel("Velikost chyby")
         plt.title("Celková chyba dle epoch")
-        plt.savefig(learn_image)
+        # plt.savefig(learn_image)
 
 
 
