@@ -17,17 +17,30 @@ from layer import Layer
 class NNET:
     def load_nnet(file):
         with open(file, "rb") as inp:
-            return pickle.load(inp)
+            try:
+                nnet = pickle.load(inp)
+            except:
+                return None
+            if type(nnet) != NNET:
+                print(type(nnet))
+                return None
+            nnet.name = file
+            return nnet
 
     def save_nnet(self, file):
         with open(file, 'wb') as save:
             pickle.dump(self, save, pickle.HIGHEST_PROTOCOL)
+            self.name = file
+
+    def __str__(self):
+        return self.name
 
     def __init__(self, input_size = 0, layer_types = [], layer_sizes = [], layer_ders = [], default_weights = None, 
                  default_biases = None, object_func = cross_entropy, object_func_der = cross_entropy_der, debuff = 1):
         # self.number_of_layers = number_of_layers
         # self.layer_sizes = layer_sizes
         # self.layer_types = layer_types
+        self.name = "Custom"
         self.input_size = input_size
         self.layers = []
         for i in range(len(layer_sizes)):
@@ -87,10 +100,10 @@ class NNET:
     
 
 if __name__ == "__main__":
-    network = NNET(input_size = 3, number_of_layers = 2, layer_types = [tanh, ReLU], layer_sizes = [10, 1], 
+    network = NNET(input_size = 2, layer_types = [tanh, ReLU], layer_sizes = [10, 2], 
                    layer_ders = [tanh_der, ReLU_der], object_func=mse, object_func_der=mse_der)
     x_train = np.array([[[0, 0]], [[0, 1]], [[1, 0]], [[1, 1]]])
-    y_train = np.array([[[0]], [[1]], [[1]], [[0]]])
+    y_train = np.array([[[1, 0]], [[0, 1]], [[0, 1]], [[1, 0]]])
     # network = NNET.load_nnet("file.pkl")
     network.learn(x_train, y_train, 1000, 0.1)
     count_success(network, x_train, y_train)

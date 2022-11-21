@@ -54,8 +54,10 @@ def load_mnist():
                 network.learn(train_x[3000:4000], train_y[3000:4000], 4, learning_rate=0.0019)
                 network.learn(train_x[12000:13000], train_y[12000:13000], 4, learning_rate=0.0019)
             success = True
+        except KeyboardInterrupt:
+            print("Program byl silou ukončen.")
+            exit(0)
         except:
-            
             network = NNET(input_size = 784, layer_types = [ReLU, ReLU, ReLU, soft_max], layer_sizes=[256, 256, 256, 10], 
                            layer_ders=[ReLU_der, ReLU_der, ReLU_der, softmax_der], debuff=debuff)
             debuff *= 0.5
@@ -63,13 +65,9 @@ def load_mnist():
     plt.savefig("img.png")
     count_success(network, test_x[0:1000], test_y[0:1000])
     network.save_nnet("mnist_network.pkl")
-    
 
-   
-
-load_mnist()
-exit()
-
+# load_mnist()
+# exit()
 if __name__ == "__main__":
     train_x, train_y = generate_majority(samples_number=5000, input_size=10, output_size=10)
     test_x, test_y = generate_majority(samples_number=1000, input_size=10, output_size=10)
