@@ -36,11 +36,12 @@ class NNET:
         return self.name
 
     def __init__(self, input_size = 0, layer_types = [], layer_sizes = [], layer_ders = [], default_weights = None, 
-                 default_biases = None, object_func = cross_entropy, object_func_der = cross_entropy_der, debuff = 1):
+                 default_biases = None, object_func = cross_entropy, object_func_der = cross_entropy_der, debuff = 1,
+                 name = "Custom"):
         # self.number_of_layers = number_of_layers
         # self.layer_sizes = layer_sizes
         # self.layer_types = layer_types
-        self.name = "Custom"
+        self.name = name
         self.input_size = input_size
         self.layers = []
         for i in range(len(layer_sizes)):

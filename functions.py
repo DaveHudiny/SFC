@@ -52,3 +52,9 @@ def cross_entropy_der(output, expected_output):
 
 def soft_max(input):
     return np.exp(input) / (np.sum(np.exp(input)) + 1e-10)
+
+def linear(input):
+    return input
+
+def linear_der(input):
+    return 1
