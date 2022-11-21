@@ -22,16 +22,20 @@ input_size = -1
 output_size = -1
 task = None
 
-train_x, train_y , test_x, test_y = None, None, None, None
+train_x, train_y, test_x, test_y = None, None, None, None
 
 
 def print_loaded():
     print(f"Vítejte v programu pro práci s neuronovými sítěmi. \n\nAktuální stav globálních proměnných:")
     print(f"  Právě máte načtenou síť: {current_network}")
-    print(f"  Grafy vývoje chybové funkce se aktuálně nachází v souboru: {loss_img}")
-    print(f"  Počet aktuálních vstupů sítě/úlohy: {input_size} (pokud -1, vstup nebyl určen)")
-    print(f"  Počet aktuálních výstupů sítě/úlohy: {output_size} (pokud -1, výstup nebyl určen)")
+    print(
+        f"  Grafy vývoje chybové funkce se aktuálně nachází v souboru: {loss_img}")
+    print(
+        f"  Počet aktuálních vstupů sítě/úlohy: {input_size} (pokud -1, vstup nebyl určen)")
+    print(
+        f"  Počet aktuálních výstupů sítě/úlohy: {output_size} (pokud -1, výstup nebyl určen)")
     print(f"  Aktuální úloha {task}")
+
 
 def print_menu():
     print("Co si přejete dělat?")
@@ -41,12 +45,13 @@ def print_menu():
     print("C) Vytvořit vlastní síť")
     print("L) Načíst síť")
     print("S) Uložit síť")
-    
+
     print("Q) Ukončit program")
     print()
     pass
 
-def print_choose_task(with_help = True):
+
+def print_choose_task(with_help=True):
     print("Vyberte jednu z následujících úloh:")
     print("  m) MNIST")
     print("  o) Výpočet modu (nejčastější hodnoty)")
@@ -56,6 +61,7 @@ def print_choose_task(with_help = True):
         print("  h) Jak na formát vlastního formátu?")
     print()
 
+
 def help_choose():
     print("\nNápověda: V případě volby vlastního formátu musíte mít alespoň jeden soubor se vstupy (pokud trénovací data == testovací data) a jeden s výstupy.")
     print("Soubor se vstupy musí obsahovat posloupnost desetinných čísel od -1.0 do 1.0 oddělených mezerami, kde řádek znamená jeden vstupní vektor.")
@@ -63,9 +69,12 @@ def help_choose():
     print("První řádek ve vstupním souboru musí obsahovat vstup pro výsledek na prvním řádku výstupu.")
     print()
 
+
 def generate_majority():
-    input_size_l = input("Velikost vstupního vektoru (například 5 => 1, 2, 3, 1, 1): ")
-    output_size_l = input("Počet povolených hodnot (například 5 => 0, 1, 2, 3, 4): ")
+    input_size_l = input(
+        "Velikost vstupního vektoru (například 5 => 1, 2, 3, 1, 1): ")
+    output_size_l = input(
+        "Počet povolených hodnot (například 5 => 0, 1, 2, 3, 4): ")
     train_size = input("Množství trénovacích dat: ")
     test_size = input("Množství testovacích dat: ")
     global current_network
@@ -84,7 +93,8 @@ def generate_majority():
         return
     if current_network != None:
         if input_size_l != current_network.input_size or output_size_l != current_network.output_size:
-            print("Některá z hodnot vstupů či výstupů se neshoduje se současnou neuronovou sítí.")
+            print(
+                "Některá z hodnot vstupů či výstupů se neshoduje se současnou neuronovou sítí.")
             exitor = input("Přejete si načtenou síť zahodit?")
             if len(exitor) > 0 and exitor[0] in ["Y", "y", "a", "A"]:
                 exitor = True
@@ -101,21 +111,21 @@ def generate_majority():
     train_x, train_y = tools.generate_majority(samples_number=train_size, input_size=input_size,
                                                output_size=output_size)
     test_x, test_y = tools.generate_majority(samples_number=test_size, input_size=input_size,
-                                                output_size=output_size)
+                                             output_size=output_size)
     global task
     task = "Majority"
+
 
 def load_mnist():
     global task
     task = "MNIST"
-    global train_x, train_y, test_x, test_y 
+    global train_x, train_y, test_x, test_y
     train_x, train_y, test_x, test_y = tools.load_mnist()
     global input_size, output_size
     train_x = train_x.reshape(train_x.shape[0], 1, 28*28)
     test_x = test_x.reshape(test_x.shape[0], 1, 28*28)
     input_size = 784
     output_size = 10
-    
 
 
 def choose_task():
@@ -136,6 +146,7 @@ def choose_task():
     elif text[0] in ["o", "O"]:
         generate_majority()
 
+
 def load_network():
     file = input("Zadejte vstupní soubor: ")
     if len(file) == 0 or os.path.exists(file) != True:
@@ -150,6 +161,7 @@ def load_network():
     global input_size, output_size
     input_size = current_network.input_size
     output_size = current_network.output_size
+
 
 def save_network():
     if current_network == None:
@@ -166,21 +178,25 @@ def save_network():
         print(f"Síť uložena do {file}")
         input("\nStiskněte enter pro pokračování...")
 
+
 def clear_screen():
     if os.name == "nt":
         os.system("CLS")
     else:
         os.system("clear")
 
+
 def learn():
     global current_network
     if train_x is None or train_y is None or current_network is None:
         print("Nemáte načtenou síť nebo trénovací data.")
         input("\nStiskněte enter pro pokračování...")
-    amount = input(f"Kolik záznamů z datasetu si přejete využít? (Maximum {train_x.shape[0]}): ")
+    amount = input(
+        f"Kolik záznamů z datasetu si přejete využít? (Maximum {train_x.shape[0]}): ")
     learning_rate = input(f"Koeficient učení: ")
     iterations = input("Počet epoch: ")
-    often = input("Jak často chcete tisknout chybu (tiskne se každá epocha mod often == 0): ")
+    often = input(
+        "Jak často chcete tisknout chybu (tiskne se každá epocha mod often == 0): ")
     split = input("Přejete si trénovací data rozdělit do podskupin (Y/n): ")
     try:
         amount = int(amount)
@@ -212,10 +228,11 @@ def learn():
         metapochs = 0
     tools.learn(task, train_x[:amount], train_y[:amount], learning_rate, loss_img, current_network,
                 iterations, often, split, how_split, metapochs)
-    
+
+
 def predict():
     global test_x, test_y, current_network
-    
+
     if test_x is None or test_y is None or current_network is None:
         print("Musí být načtena jak testovací data, tak neuronová síť.")
         input("\nStiskněte enter pro pokračování...")
@@ -234,7 +251,7 @@ def selection(x):
         load_network()
     elif x[0] in ["s", "S"]:
         save_network()
-    elif x[0] in["c", "C"]:
+    elif x[0] in ["c", "C"]:
         global current_network, input_size, output_size
         current_network = cn.create_network(input_size, output_size)
         if current_network != None:
@@ -247,7 +264,7 @@ def selection(x):
     elif x[0] in ["p", "P"]:
         predict()
     return 0
-        
+
 
 if __name__ == "__main__":
     end = False

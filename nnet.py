@@ -43,7 +43,6 @@ class NNET:
     name : str
         Determines name of neural network
     """
-
     def __init__(self, input_size=0, layer_types=[], layer_sizes=[], layer_ders=[], default_weights=None,
                  default_biases=None, object_func=cross_entropy, object_func_der=cross_entropy_der, debuff=1.0,
                  name="Custom"):
