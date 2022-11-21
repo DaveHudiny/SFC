@@ -14,17 +14,24 @@ import nnet
 import tools
 
 current_network = None
+loss_img = "loss.png"
+
 
 def print_loaded():
     print(f"Vítejte v programu pro práci s neuronovými sítěmi. \n\nAktuální stav globálních proměnných:")
     print(f"  Právě máte načtenou síť: {current_network}")
+    print(f"  Grafy vývoje chybové funkce se aktuálně nachází v souboru: {loss_img}")
+    print()
 
 def print_menu():
+    print("Co si přejete dělat?")
+    print("Načíst síť")
     pass
 
 def selection(x):
     if len(x) <= 0:
         return 1
+    
 
 if __name__ == "__main__":
     end = False
@@ -34,6 +41,6 @@ if __name__ == "__main__":
         else:
             os.system("clear")
         print_loaded()
-        text = input("Vaše volba ")
+        text = input("Vaše volba: ")
         if len(text) == 0 or text[0] not in ["Y", "y"]:
             end = True
