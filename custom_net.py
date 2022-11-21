@@ -17,6 +17,7 @@ def activation_list_hidden():
     print("  r) ReLU (výchozí)")
     print("  s) Sigmoid")
     print("  t) Tanh")
+    print()
 
 def activation_list_output():
     print("Možnosti aktivačních funkcí výstupních vrstev:")
@@ -58,14 +59,15 @@ def choose_loss_function(x):
         return cross_entropy, cross_entropy_der
 
 
-def create_network():
-    input_size = input("Zadejte počet vstupů sítě: ")
-    try:
-        input_size = int(input_size)
-    except:
-        print("Nejedná se o legální hodnotu")
-        input("\nStiskněte enter pro pokračování...")
-        return None
+def create_network(input_size, output_size):
+    if input_size == -1:
+        input_size = input("Zadejte počet vstupů sítě: ")
+        try:
+            input_size = int(input_size)
+        except:
+            print("Nejedná se o legální hodnotu")
+            input("\nStiskněte enter pro pokračování...")
+            return None
     number_of_layers = input("Zadejte počet skrytých vrstev sítě: ")
     try:
         number_of_layers = int(number_of_layers)
@@ -90,14 +92,15 @@ def create_network():
         func, func_der = choose_function(layer_type)
         layer_types.append(func)
         layer_types_der.append(func_der)
-    number_of_outputs = input("Počet výstupů sítě: ")
-    try:
-        number_of_outputs = int(number_of_outputs)
-    except:
-        print("Nejedná se o legální hodnotu")
-        input("\nStiskněte enter pro pokračování...")
-        return None
-    layer_sizes.append(number_of_outputs)
+    if output_size == -1:
+        output_size = input("Počet výstupů sítě: ")
+        try:
+            output_size = int(output_size)
+        except:
+            print("Nejedná se o legální hodnotu")
+            input("\nStiskněte enter pro pokračování...")
+            return None
+    layer_sizes.append(output_size)
     activation_list_output()
     output_function = input("Zvolte výstupní aktivační funkci: ")
     output, output_der = choose_output_function(output_function)
@@ -108,10 +111,6 @@ def create_network():
     loss_fun, loss_fun_der = choose_loss_function(loss)
     name = input("Zvolte jméno své sítě: ")
     current_network = NNET(input_size, layer_types, layer_sizes, layer_types_der, None, None, loss_fun, loss_fun_der, 1, name)
-    x_train = np.array([[[0, 0]], [[0, 1]], [[1, 0]], [[1, 1]]])
-    y_train = np.array([[[1, 0]], [[0, 1]], [[0, 1]], [[1, 0]]])
-    current_network.learn(x_train, y_train, 1000, 0.1)
-    tools.count_success(current_network, x_train, y_train)
     print(f"Úspěšně jste vytvořil neuronovou síť {name}")
     print()
     input("Stiskněte enter pro pokračování...")

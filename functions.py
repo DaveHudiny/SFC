@@ -13,9 +13,13 @@ import numpy as np
 def count_success(network, test_x, test_y):
     successful = 0
     for x, y in zip(test_x, test_y):
-        y_pred, _ = network.predict(x)
-        if y_pred == np.argmax(y):
-            successful += 1
+        try:
+            y_pred, _ = network.predict(x)
+        except:
+            print("Někde to podteklo -- hodnota výstupu je přesnější než float.")
+        else:
+            if y_pred == np.argmax(y):
+                successful += 1
     print("Successful was", successful, "from", len(test_y))
     print("Success rate:", successful/len(test_y)*100, "%")
 

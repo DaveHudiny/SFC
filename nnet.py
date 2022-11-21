@@ -14,6 +14,7 @@ import pickle
 import matplotlib.pyplot as plt
 from layer import Layer
 
+
 class NNET:
     """
     Universal neural network class
@@ -39,12 +40,13 @@ class NNET:
     debuff : float
         Determines debuff for weight sizes -- sometimes the output of neural network is too because of
         high values of network weights. This debuff makes: weights *= debuff
-    name: str
+    name : str
         Determines name of neural network
     """
-    def __init__(self, input_size = 0, layer_types = [], layer_sizes = [], layer_ders = [], default_weights = None, 
-                 default_biases = None, object_func = cross_entropy, object_func_der = cross_entropy_der, debuff = 1.0,
-                 name = "Custom"):
+
+    def __init__(self, input_size=0, layer_types=[], layer_sizes=[], layer_ders=[], default_weights=None,
+                 default_biases=None, object_func=cross_entropy, object_func_der=cross_entropy_der, debuff=1.0,
+                 name="Custom"):
         # self.number_of_layers = number_of_layers
         # self.layer_sizes = layer_sizes
         # self.layer_types = layer_types
@@ -62,13 +64,20 @@ class NNET:
                 weights *= debuff
                 bias = np.random.rand(1, layer_sizes[i]) - 0.5
             elif i > 0:
-                weights = 2*np.random.rand(layer_sizes[i - 1], layer_sizes[i]) - 1
+                weights = 2 * \
+                    np.random.rand(layer_sizes[i - 1], layer_sizes[i]) - 1
                 weights *= debuff
                 bias = 2*np.random.rand(1, layer_sizes[i]) - 1
             self.layers.append(Layer("FC", weights, bias, None, None))
-            self.layers.append(Layer("Act", weights, bias, layer_types[i], layer_ders[i]))
+            self.layers.append(
+                Layer("Act", weights, bias, layer_types[i], layer_ders[i]))
         self.object_func = object_func
         self.object_func_der = object_func_der
+
+    def debuffing(self, debuff):
+        for layer in self.layers:
+            if layer.type == "FC":
+                layer.weights *= debuff
 
     def load_nnet(file):
         with open(file, "rb") as inp:
@@ -87,7 +96,7 @@ class NNET:
 
     def __str__(self):
         return self.name
-    
+
     def forward_propagation(self, input):
         for layer in self.layers:
             input = layer.forward_propagation(input)
@@ -110,7 +119,7 @@ class NNET:
             input = layer.backward_propagation(input, learning_rate)
         return input
 
-    def learn(self, inputs, labels, iterations, learning_rate, learn_image = "img.png", error_print = 20):
+    def learn(self, inputs, labels, iterations, learning_rate, learn_image="img.png", error_print=20):
         """
         Function learns neural network on input labels
 
@@ -138,9 +147,10 @@ class NNET:
         plt.title("Celková chyba dle epoch")
         plt.savefig(learn_image)
 
+
 if __name__ == "__main__":
-    network = NNET(input_size = 2, layer_types = [tanh, ReLU], layer_sizes = [10, 2], 
-                   layer_ders = [tanh_der, ReLU_der], object_func=mse, object_func_der=mse_der)
+    network = NNET(input_size=2, layer_types=[tanh, ReLU], layer_sizes=[10, 2],
+                   layer_ders=[tanh_der, ReLU_der], object_func=mse, object_func_der=mse_der)
     x_train = np.array([[[0, 0]], [[0, 1]], [[1, 0]], [[1, 1]]])
     y_train = np.array([[[1, 0]], [[0, 1]], [[0, 1]], [[1, 0]]])
     # network = NNET.load_nnet("file.pkl")
