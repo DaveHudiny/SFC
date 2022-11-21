@@ -48,9 +48,11 @@ class NNET:
         # self.number_of_layers = number_of_layers
         # self.layer_sizes = layer_sizes
         # self.layer_types = layer_types
+
         self.name = name
         self.input_size = input_size
         self.layers = []
+        self.output_size = layer_sizes[-1]
         for i in range(len(layer_sizes)):
             if default_weights != None:
                 weights = default_weights[i]

@@ -46,10 +46,16 @@ def load_mnist():
         test_x = pickle.load(inp)
     with open("./test/test_mnist/test_y.pkl", "rb") as inp:
         test_y = pickle.load(inp)
-    train_x = train_x / 255.0
-    train_x -= 0.5
-    test_x = test_x / 255.0
-    test_x -= 0.5
+    print(train_x[100])
+
+    x_train = x_train.reshape(x_train.shape[0], 1, 28*28)
+    x_train = x_train.astype('float32')
+    x_test = x_test.reshape(x_test.shape[0], 1, 28*28)
+    x_test = x_test.astype('float32')
+    x_train /= 255
+    x_test /= 255
+    x_train -= 0.5
+    x_test -= 0.5
 
     network = NNET(input_size = 784, layer_types = [ReLU, soft_max], layer_sizes=[512, 10], 
                    layer_ders=[ReLU_der, softmax_der])
@@ -57,7 +63,7 @@ def load_mnist():
     debuff = 0.5
     while success == False: 
         try:
-            for i in range(10):
+            for i in range(2):
                 print(f"Metapocha {i}")
                 network.learn(train_x[0:1000], train_y[0:1000], 4, learning_rate=0.0019)
                 network.learn(train_x[5000:6000], train_y[5000:6000], 4, learning_rate=0.0019)
@@ -75,8 +81,8 @@ def load_mnist():
     count_success(network, test_x[0:1000], test_y[0:1000])
     network.save_nnet("mnist_network.pkl")
 
-# load_mnist()
-# exit()
+load_mnist()
+exit()
 if __name__ == "__main__":
     train_x, train_y = generate_majority(samples_number=5000, input_size=10, output_size=10)
     test_x, test_y = generate_majority(samples_number=1000, input_size=10, output_size=10)
@@ -84,7 +90,7 @@ if __name__ == "__main__":
     test_x = test_x / 10.0
     train_x -= 0.5
     test_x -= 0.5
-    network = NNET(input_size = 10, number_of_layers = 4, layer_types = [tanh, ReLU, ReLU, soft_max], layer_sizes = [150, 100, 100, 10], layer_ders = [tanh_der, ReLU_der, ReLU_der, softmax_der])
+    network = NNET(input_size = 10, layer_types = [tanh, ReLU, ReLU, soft_max], layer_sizes = [150, 100, 100, 10], layer_ders = [tanh_der, ReLU_der, ReLU_der, softmax_der])
 
     network.learn(train_x, train_y, 300, 0.001)
     count_success(network, test_x, test_y)
