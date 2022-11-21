@@ -92,6 +92,14 @@ class NNET:
         return input
 
     def predict(self, input):
+        """
+        Function predicts class of input.
+
+        Parameters
+        ----------
+        input : np.array [[0, 1]]
+            input of neural network
+        """
         output = self.forward_propagation(input)
         return np.argmax(soft_max(output)), soft_max(output)
 
@@ -101,6 +109,13 @@ class NNET:
         return input
 
     def learn(self, inputs, labels, iterations, learning_rate, learn_image = "img.png", error_print = 20):
+        """
+        Function learns neural network on input labels
+
+        Parameters
+        ----------
+        inputs : 
+        """
         errors = []
         for i in range(iterations):
             error_val = 0
@@ -119,7 +134,7 @@ class NNET:
         plt.xlabel("Počet epoch")
         plt.ylabel("Velikost chyby")
         plt.title("Celková chyba dle epoch")
-        # plt.savefig(learn_image)
+        plt.savefig(learn_image)
 
 if __name__ == "__main__":
     network = NNET(input_size = 2, layer_types = [tanh, ReLU], layer_sizes = [10, 2], 

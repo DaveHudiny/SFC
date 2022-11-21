@@ -72,7 +72,6 @@ def load_mnist():
                            layer_ders=[ReLU_der, ReLU_der, ReLU_der, softmax_der], debuff=debuff)
             debuff *= 0.5
             print("Bylo nutno snížit iniciální váhy")
-    plt.savefig("img.png")
     count_success(network, test_x[0:1000], test_y[0:1000])
     network.save_nnet("mnist_network.pkl")
 
