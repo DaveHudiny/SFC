@@ -51,22 +51,21 @@ def print_menu():
     pass
 
 
-def print_choose_task(with_help=True):
+def print_choose_task():
     print("Vyberte jednu z následujících úloh:")
     print("  m) MNIST")
     print("  o) Výpočet modu (nejčastější hodnoty)")
     print("  x) XOR problém")
     print("  c) Vlastní problém")
-    if with_help:
-        print("  h) Jak na formát vlastního formátu?")
     print()
 
 
 def help_choose():
-    print("\nNápověda: V případě volby vlastního formátu musíte mít alespoň jeden soubor se vstupy (pokud trénovací data == testovací data) a jeden s výstupy.")
+    print("V případě volby vlastního formátu musíte mít alespoň jeden soubor se vstupy (pokud trénovací data == testovací data) a jeden s výstupy.")
     print("Soubor se vstupy musí obsahovat posloupnost desetinných čísel od -1.0 do 1.0 oddělených mezerami, kde řádek znamená jeden vstupní vektor.")
-    print("Soubor s výstupy musí obsahovat posloupnost desetinných čísel od 0.0 do 1.0 (příslušnost) oddělených mezerami, kde řádek symbolizuje vektor výstupu pro vstup.")
-    print("První řádek ve vstupním souboru musí obsahovat vstup pro výsledek na prvním řádku výstupu.")
+    print("Soubor s výstupy musí obsahovat posloupnost desetinných čísel od 0.0 do 1.0 (příslušnosti) oddělených mezerami, kde řádek symbolizuje vektor výstupu pro vstup.")
+    print("Desátý řádek ve vstupním souboru musí obsahovat vstup pro výsledek na desátém řádku výstupu.")
+    print("Záznamy všech musí mít stejné délky. Záznamy všech výstupů rovněž. Kontrola nebude z důvodu náročnosti prováděna.")
     print()
 
 
@@ -95,7 +94,7 @@ def generate_majority():
         if input_size_l != current_network.input_size or output_size_l != current_network.output_size:
             print(
                 "Některá z hodnot vstupů či výstupů se neshoduje se současnou neuronovou sítí.")
-            exitor = input("Přejete si načtenou síť zahodit?")
+            exitor = input("Přejete si načtenou síť zahodit? Vaše volba (y, Y):")
             if len(exitor) > 0 and exitor[0] in ["Y", "y", "a", "A"]:
                 exitor = True
             else:
@@ -113,6 +112,10 @@ def generate_majority():
     test_x, test_y = tools.generate_majority(samples_number=test_size, input_size=input_size,
                                              output_size=output_size)
     global task
+    train_x = train_x / float(output_size)
+    test_x = test_x / float(output_size)
+    train_x -= 0.5
+    test_x -= 0.5
     task = "Majority"
 
 
@@ -126,14 +129,58 @@ def load_mnist():
     test_x = test_x.reshape(test_x.shape[0], 1, 28*28)
     input_size = 784
     output_size = 10
+    train_x = train_x.astype('float32')
+    train_x = train_x / 255.0
+    train_x -= 0.5
+    test_x = test_x.astype('float32')
+    test_x = test_x / 255.0
+    test_x -= 0.5
 
+def load_custom_task():
+    global train_x, train_y, test_x, test_y
+    global input_size, output_size
+    clear_screen()
+    help_choose()
+    print()
+    f_trainx = input("Soubor s trénovacími vstupy: ")
+    if not os.path.isfile(f_trainx):
+        print("Zadaný soubor se nezdařilo načíst")
+        input("\nStiskněte enter pro pokračování...")
+        return
+    f_trainy = input("Soubor s trénovacími výstupy: ")
+    if not os.path.isfile(f_trainy):
+        print("Zadaný soubor se nezdařilo načíst")
+        input("\nStiskněte enter pro pokračování...")
+        return
+    f_testx = input("Soubor s testovacími vstupy: ")
+    if not os.path.isfile(f_testx):
+        print("Zadaný soubor se nezdařilo načíst")
+        input("\nStiskněte enter pro pokračování...")
+        return
+    f_testy = input("Soubor s testovacími výstupy: ")
+    if not os.path.isfile(f_testy):
+        print("Zadaný soubor se nezdařilo načíst")
+        input("\nStiskněte enter pro pokračování...")
+        return
+    try:
+        train_x, train_y, test_x, test_y = tools.load_custom_task(f_trainx, f_trainy, f_testx, f_testy)
+    except KeyboardInterrupt:
+        print("Program byl násilně ukončen při čtení souborů!")
+        exit()
+    except:
+        print("Soubory nejsou správného formátu.")
+        input("\nStiskněte enter pro pokračování...")
+        return
+    input_size = len(train_x[0][0])
+    output_size = len(train_y[0][0])
+    input("\nStiskněte enter pro pokračování...")
 
 def choose_task():
-    print_choose_task(True)
+    print_choose_task()
     text = input("Vaše volba: ")
     if len(text) <= 0 or text[0] in ["h", "H"]:
         clear_screen()
-        print_choose_task(False)
+        print_choose_task()
         help_choose()
         text = input("Vaše volba: ")
     if len(text) <= 0 or text[0] not in ["m", "M", "o", "O", "x", "X", "c", "C"]:
@@ -142,9 +189,10 @@ def choose_task():
         return
     elif text[0] in ["m", "M"]:
         load_mnist()
-        pass
     elif text[0] in ["o", "O"]:
         generate_majority()
+    elif text[0] in ["c", "C"]:
+        load_custom_task()
 
 
 def load_network():
@@ -210,6 +258,7 @@ def learn():
     except:
         print("Zadána ilegální hodnota některého parametru.")
         input("\nStiskněte enter pro pokračování...")
+        return
     if len(split) > 0 and split[0] in ["Y", "y", "a", "A"]:
         split = True
     else:
@@ -223,6 +272,7 @@ def learn():
         except:
             print("Zadána ilegální hodnota některého parametru.")
             input("\nStiskněte enter pro pokračování...")
+            return
     else:
         how_split = 0
         metapochs = 0
@@ -237,15 +287,14 @@ def predict():
         print("Musí být načtena jak testovací data, tak neuronová síť.")
         input("\nStiskněte enter pro pokračování...")
         return
-    pom_test = test_x.astype('float32')
-    pom_test = test_x / float(np.max(test_x))
-    pom_test -= 0.5
-    count_success(current_network, pom_test, test_y)
+    count_success(current_network, test_x, test_y)
     input("\nStiskněte enter pro pokračování...")
 
 
 def selection(x):
-    if len(x) == 0 or x[0] in ["q", "Q"]:
+    if len(x) == 0:
+        return 0
+    elif x[0] in ["q", "Q"]:
         return 1
     elif x[0] in ["l", "L"]:
         load_network()

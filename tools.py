@@ -15,13 +15,45 @@ from functions import count_success
 
 np.seterr(all='raise')
 
+def load_custom_task(ftrain_x, ftrain_y, ftest_x, ftest_y):
+    tr_x = open(ftrain_x, "r")
+    tr_y = open(ftrain_y, "r")
+    te_x = open(ftest_x, "r")
+    te_y = open(ftest_y, "r")
+    train_x = []
+    train_y = []
+    test_x = []
+    test_y = []
+    linesx = tr_x.readlines()
+    linesy = tr_y.readlines()
+    if len(linesx) != len(linesy):
+        assert()
+    for trainx, trainy in zip(linesx, linesy):
+        linex = np.array([trainx.split(" ")]).astype(np.float)
+        liney = np.array([trainy.split(" ")]).astype(np.float)
+        train_x.append(linex)
+        train_y.append(liney)
+    linesx = te_x.readlines()
+    linesy = te_y.readlines()
+    if len(linesx) != len(linesy):
+        assert()
+    for testx, testy in zip(linesx, linesy):
+        linex = np.array([testx.split(" ")]).astype(np.float)
+        liney = np.array([testy.split(" ")]).astype(np.float)
+        test_x.append(linex)
+        test_y.append(liney)
+    tr_x.close()
+    tr_y.close()
+    te_x.close()
+    te_y.close()
+    train_x = np.array(train_x)
+    train_y = np.array(train_y)
+    test_x = np.array(test_x)
+    test_y = np.array(test_y)
+    return train_x, train_y, test_x, test_y
+
 def learn(task, train_x, train_y, learning_rate : float, image : str, network: NNET, 
           iterations, how_often_error, split = False, how_split = 1, metapochs = 1):
-    max_val = np.max(train_x)
-    if task in ["Majority", "MNIST"]:
-        train_x = train_x.astype('float32')
-        train_x = train_x / float(max_val)
-        train_x -= 0.5
     success = False
     while success != True:
         try:
