@@ -21,6 +21,7 @@ loss_img = "loss.png"
 input_size = -1
 output_size = -1
 task = None
+from PIL import Image
 
 train_x, train_y, test_x, test_y = None, None, None, None
 
@@ -39,13 +40,15 @@ def print_loaded():
 
 def print_menu():
     print("Co si přejete dělat?")
-    print("E) Nauč síť na trénovacích datech")
-    print("P) Vyzkoušet síť na testovacích datech")
-    print("T) Vybrat úlohu")
-    print("C) Vytvořit vlastní síť")
-    print("L) Načíst síť")
-    print("S) Uložit síť")
-
+    print("1) Nauč síť na trénovacích datech")
+    print("2) Vyzkoušet síť na testovacích datech")
+    print("3) Vyzkoušet síť na testovacím datu")
+    print("4) Vybrat úlohu")
+    print("5) Vytvořit vlastní síť")
+    print("6) Načíst síť")
+    print("7) Uložit síť")
+    print("8) Zahoď síť")
+    print("9) Zahoď načtená data")
     print("Q) Ukončit program")
     print()
     pass
@@ -206,6 +209,7 @@ def load_network():
     if current_network == None:
         print("Nepovedlo se načíst síť.")
         input("\nStiskněte enter pro pokračování...")
+        return
     global input_size, output_size
     input_size = current_network.input_size
     output_size = current_network.output_size
@@ -215,6 +219,7 @@ def save_network():
     if current_network == None:
         print("Není co uložit")
         input("\nStiskněte enter pro pokračování...")
+        return
     else:
         file = input("Zadejte jméno souboru: ")
         try:
@@ -239,6 +244,7 @@ def learn():
     if train_x is None or train_y is None or current_network is None:
         print("Nemáte načtenou síť nebo trénovací data.")
         input("\nStiskněte enter pro pokračování...")
+        return
     amount = input(
         f"Kolik záznamů z datasetu si přejete využít? (Maximum {train_x.shape[0]}): ")
     learning_rate = input(f"Koeficient učení: ")
@@ -290,28 +296,50 @@ def predict():
     count_success(current_network, test_x, test_y)
     input("\nStiskněte enter pro pokračování...")
 
+def test_input():
+    if current_network is None or test_x is None:
+        print("Musí být načtena jak testovací data, tak neuronová síť.")
+        input("\nStiskněte enter pro pokračování...")
+        return
+    input(f"Které testovací dato chcete vyzkoušet (volte od 0 do {test_x.shape[0]}")
+    if task == "MNIST":
+        image = Image.fromarray(test_x[0])
+        image.show()
+    else:
+        pass
+    pass
 
 def selection(x):
+    global current_network, input_size, output_size
+    global train_x, train_y, test_x, test_y
     if len(x) == 0:
         return 0
     elif x[0] in ["q", "Q"]:
         return 1
-    elif x[0] in ["l", "L"]:
+    elif x[0] in ["6"]:
         load_network()
-    elif x[0] in ["s", "S"]:
+    elif x[0] in ["7"]:
         save_network()
-    elif x[0] in ["c", "C"]:
-        global current_network, input_size, output_size
+    elif x[0] in ["5"]:
         current_network = cn.create_network(input_size, output_size)
         if current_network != None:
             input_size = current_network.input_size
             output_size = current_network.output_size
-    elif x[0] in ["t", "T"]:
+    elif x[0] in ["4"]:
         choose_task()
-    elif x[0] in ["e", "E"]:
+    elif x[0] in ["1"]:
         learn()
-    elif x[0] in ["p", "P"]:
+    elif x[0] in ["2"]:
         predict()
+    elif x[0] in ["9"]:
+        train_x, train_y, test_x, test_y, input_size, output_size = None, None, None, None, -1, -1
+    elif x[0] in ["8"]:
+        del current_network
+        current_network = None
+        if train_x == None:
+            input_size,  output_size = -1, -1
+    elif x[0] in ["3"]:
+        test_input()
     return 0
 
 

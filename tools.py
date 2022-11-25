@@ -55,6 +55,7 @@ def load_custom_task(ftrain_x, ftrain_y, ftest_x, ftest_y):
 def learn(task, train_x, train_y, learning_rate : float, image : str, network: NNET, 
           iterations, how_often_error, split = False, how_split = 1, metapochs = 1):
     success = False
+    debuff_times = 0
     while success != True:
         try:
             print("Trénink začal.")
@@ -72,7 +73,10 @@ def learn(task, train_x, train_y, learning_rate : float, image : str, network: N
         except KeyboardInterrupt:
             print("Program byl silou ukončen.")
             exit(0)
-        except :
+        except Exception as e:
+            print(e)
+            if debuff_times > 20:
+                print("Síť se nepovedlo správně trénovat. Prosím, vytvořte novou.")
             network.debuffing(debuff=0.5)
             print("Bylo nutno snížit iniciální váhy")
     print("Trénování bylo dokončeno")

@@ -15,13 +15,14 @@ def count_success(network, test_x, test_y):
     for x, y in zip(test_x, test_y):
         try:
             y_pred, _ = network.predict(x)
-        except:
-            print("Někde to podteklo -- hodnota výstupu je přesnější než float.")
+        except Exception as e:
+            print(e)
+            print("Pravděpodobně to někde podteklo či přeteklo.")
         else:
             if y_pred == np.argmax(y):
                 successful += 1
-    print("Successful was", successful, "from", len(test_y))
-    print("Success rate:", successful/len(test_y)*100, "%")
+    print("Úspěšně bylo klasifikováno", successful, "z", len(test_y))
+    print("Procento úspěšnosti:", successful/len(test_y)*100, "%")
 
 def tanh_prime(x):
     return 1-np.tanh(x)**2

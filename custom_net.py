@@ -78,7 +78,6 @@ def create_network(input_size, output_size):
     layer_sizes = []
     layer_types = []
     layer_types_der = []
-    activation_list_hidden()
     for i in range(number_of_layers):
         layer_size = input(f"Počet neuronů ve vrstvě {i + 1}: ")
         try:
@@ -88,6 +87,7 @@ def create_network(input_size, output_size):
             input("\nStiskněte enter pro pokračování...")
             return None
         layer_sizes.append(layer_size)
+        activation_list_hidden()
         layer_type = input(f"Aktivační funkce skryté vrstvy {i + 1}: ")
         func, func_der = choose_function(layer_type)
         layer_types.append(func)
