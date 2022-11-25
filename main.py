@@ -10,18 +10,20 @@
 
 import os
 import time
+import sys
 
 from nnet import NNET
 import tools
 from functions import *
 import custom_net as cn
+from PIL import Image, ImageEnhance
 
 current_network = None
 loss_img = "loss.png"
 input_size = -1
 output_size = -1
 task = None
-from PIL import Image
+
 
 train_x, train_y, test_x, test_y = None, None, None, None
 
@@ -93,7 +95,7 @@ def generate_majority():
         print("Některá z hodnot nebyla přirozené číslo")
         input("\nStiskněte enter pro pokračování...")
         return
-    if current_network != None:
+    if current_network is not None:
         if input_size_l != current_network.input_size or output_size_l != current_network.output_size:
             print(
                 "Některá z hodnot vstupů či výstupů se neshoduje se současnou neuronovou sítí.")
@@ -206,7 +208,7 @@ def load_network():
         return
     global current_network
     current_network = NNET.load_nnet(file)
-    if current_network == None:
+    if current_network is None:
         print("Nepovedlo se načíst síť.")
         input("\nStiskněte enter pro pokračování...")
         return
@@ -216,7 +218,7 @@ def load_network():
 
 
 def save_network():
-    if current_network == None:
+    if current_network is None:
         print("Není co uložit")
         input("\nStiskněte enter pro pokračování...")
         return
@@ -297,17 +299,32 @@ def predict():
     input("\nStiskněte enter pro pokračování...")
 
 def test_input():
-    if current_network is None or test_x is None:
-        print("Musí být načtena jak testovací data, tak neuronová síť.")
+    # if current_network is None or test_x is None:
+        # print("Musí být načtena jak testovací data, tak neuronová síť.")
+        # input("\nStiskněte enter pro pokračování...")
+        # return
+    index = input(f"Index testovacího data (volte od 0 do {test_x.shape[0]}): ")
+    try:
+        index = int(index)
+        if index < 0 or test_x.shape[0] < index:
+            assert()
+    except:
+        print("Nebyl zadán vhodný index")
         input("\nStiskněte enter pro pokračování...")
         return
-    input(f"Které testovací dato chcete vyzkoušet (volte od 0 do {test_x.shape[0]}")
     if task == "MNIST":
-        image = Image.fromarray(test_x[0])
+        shaped = ((np.reshape(test_x[index], (28, 28)) + 0.4999) * 255)
+        print(shaped.max())
+        shaped = shaped.astype(int)
+        print(shaped.max())
+        print(shaped)
+        print(shaped.shape)
+        image = Image.fromarray(shaped)
         image.show()
     else:
         pass
     pass
+    input("\nStiskněte enter pro pokračování...")
 
 def selection(x):
     global current_network, input_size, output_size
@@ -322,7 +339,7 @@ def selection(x):
         save_network()
     elif x[0] in ["5"]:
         current_network = cn.create_network(input_size, output_size)
-        if current_network != None:
+        if current_network is not None:
             input_size = current_network.input_size
             output_size = current_network.output_size
     elif x[0] in ["4"]:
@@ -336,7 +353,7 @@ def selection(x):
     elif x[0] in ["8"]:
         del current_network
         current_network = None
-        if train_x == None:
+        if train_x is None:
             input_size,  output_size = -1, -1
     elif x[0] in ["3"]:
         test_input()
