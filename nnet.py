@@ -103,15 +103,15 @@ class NNET:
 
     def predict(self, input):
         """
-        Function predicts class of input.
+        Function predicts class of input by neural network forward propagation and.
 
         Parameters
         ----------
-        input : np.array [[0, 1]]
-            input of neural network
+        input : np.array 
+            input of neural network in form of [[0, ..., 1]]
         """
         output = self.forward_propagation(input)
-        return np.argmax(soft_max(output)), soft_max(output)
+        return np.argmax(output), output
 
     def backward_propagation(self, input, learning_rate):
         for layer in reversed(self.layers[:-1]):

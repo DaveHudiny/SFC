@@ -16,7 +16,7 @@ from nnet import NNET
 import tools
 from functions import *
 import custom_net as cn
-from PIL import Image, ImageEnhance
+import matplotlib.pyplot as plt
 
 current_network = None
 loss_img = "loss.png"
@@ -37,7 +37,7 @@ def print_loaded():
         f"  Počet aktuálních vstupů sítě/úlohy: {input_size} (pokud -1, vstup nebyl určen)")
     print(
         f"  Počet aktuálních výstupů sítě/úlohy: {output_size} (pokud -1, výstup nebyl určen)")
-    print(f"  Aktuální úloha {task}")
+    print(f"  Aktuální načtená úloha {task}")
 
 
 def print_menu():
@@ -60,7 +60,6 @@ def print_choose_task():
     print("Vyberte jednu z následujících úloh:")
     print("  m) MNIST")
     print("  o) Výpočet modu (nejčastější hodnoty)")
-    print("  x) XOR problém")
     print("  c) Vlastní problém")
     print()
 
@@ -107,7 +106,8 @@ def generate_majority():
             if not exitor:
                 input("\nStiskněte enter pro pokračování...")
                 return
-    current_network = None
+            else:
+                current_network = None
     global input_size, output_size
     input_size = input_size_l
     output_size = output_size_l
@@ -122,18 +122,40 @@ def generate_majority():
     train_x -= 0.5
     test_x -= 0.5
     task = "Majority"
+    print("Byla vygenerována úloha pro počítání nejčastější hodnoty.")
+    input("\nStiskněte enter pro pokračování...")
 
 
 def load_mnist():
     global task
-    task = "MNIST"
+    
     global train_x, train_y, test_x, test_y
-    train_x, train_y, test_x, test_y = tools.load_mnist()
+    
     global input_size, output_size
-    train_x = train_x.reshape(train_x.shape[0], 1, 28*28)
-    test_x = test_x.reshape(test_x.shape[0], 1, 28*28)
+    global current_network
+    input_size_l = 784
+    output_size_l = 10
+    if current_network is not None:
+        if input_size_l != current_network.input_size or output_size_l != current_network.output_size:
+            print(
+                "Některá z hodnot vstupů či výstupů se neshoduje se současnou neuronovou sítí.")
+            exitor = input("Přejete si načtenou síť zahodit? Vaše volba (y, Y):")
+            if len(exitor) > 0 and exitor[0] in ["Y", "y", "a", "A"]:
+                exitor = True
+            else:
+                exitor = False
+            if not exitor:
+                input("\nStiskněte enter pro pokračování...")
+                return
+            else:
+                current_network = None
+                
     input_size = 784
     output_size = 10
+    task = "MNIST"
+    train_x, train_y, test_x, test_y = tools.load_mnist()
+    train_x = train_x.reshape(train_x.shape[0], 1, 28*28)
+    test_x = test_x.reshape(test_x.shape[0], 1, 28*28)
     train_x = train_x.astype('float32')
     train_x = train_x / 255.0
     train_x -= 0.5
@@ -144,6 +166,7 @@ def load_mnist():
 def load_custom_task():
     global train_x, train_y, test_x, test_y
     global input_size, output_size
+    global current_network
     clear_screen()
     help_choose()
     print()
@@ -168,7 +191,7 @@ def load_custom_task():
         input("\nStiskněte enter pro pokračování...")
         return
     try:
-        train_x, train_y, test_x, test_y = tools.load_custom_task(f_trainx, f_trainy, f_testx, f_testy)
+        train_x_p, train_y_p, test_x_p, test_y_p = tools.load_custom_task(f_trainx, f_trainy, f_testx, f_testy)
     except KeyboardInterrupt:
         print("Program byl násilně ukončen při čtení souborů!")
         exit()
@@ -176,8 +199,28 @@ def load_custom_task():
         print("Soubory nejsou správného formátu.")
         input("\nStiskněte enter pro pokračování...")
         return
-    input_size = len(train_x[0][0])
-    output_size = len(train_y[0][0])
+    input_size_l = len(train_x_p[0][0])
+    output_size_l = len(train_y_p[0][0])
+    if current_network is not None:
+        if input_size_l != current_network.input_size or output_size_l != current_network.output_size:
+            print(
+                "Některá z hodnot vstupů či výstupů se neshoduje se současnou neuronovou sítí.")
+            exitor = input("Přejete si načtenou síť zahodit? Vaše volba (y, Y): ")
+            if len(exitor) > 0 and exitor[0] in ["Y", "y", "a", "A"]:
+                exitor = True
+            else:
+                exitor = False
+            if not exitor:
+                input("\nStiskněte enter pro pokračování...")
+                return
+            else:
+                current_network = None
+    input_size = input_size_l
+    output_size = output_size_l
+    train_x, train_y, test_x, test_y = train_x_p, train_y_p, test_x_p, test_y_p
+    global task
+    task = "Vlastní"
+    print("Úloha byla úspěšně načtena")
     input("\nStiskněte enter pro pokračování...")
 
 def choose_task():
@@ -188,7 +231,7 @@ def choose_task():
         print_choose_task()
         help_choose()
         text = input("Vaše volba: ")
-    if len(text) <= 0 or text[0] not in ["m", "M", "o", "O", "x", "X", "c", "C"]:
+    if len(text) <= 0 or text[0] not in ["m", "M", "o", "O", "c", "C"]:
         print("Neplatná volba.")
         input("\nStiskněte enter pro pokračování...")
         return
@@ -299,10 +342,14 @@ def predict():
     input("\nStiskněte enter pro pokračování...")
 
 def test_input():
-    # if current_network is None or test_x is None:
-        # print("Musí být načtena jak testovací data, tak neuronová síť.")
-        # input("\nStiskněte enter pro pokračování...")
-        # return
+    prediction = True
+    if test_x is None:
+        print("Musí být načtena testovací data.")
+        input("\nStiskněte enter pro pokračování...")
+        return
+    if current_network is None:
+        print("Není načtena žádná neuronová síť. Bude vytisknut pouze vstup a požadovaný výstup.")
+        prediction = False
     index = input(f"Index testovacího data (volte od 0 do {test_x.shape[0]}): ")
     try:
         index = int(index)
@@ -312,22 +359,31 @@ def test_input():
         print("Nebyl zadán vhodný index")
         input("\nStiskněte enter pro pokračování...")
         return
+    print()
+    dato = test_x[index]
     if task == "MNIST":
-        shaped = ((np.reshape(test_x[index], (28, 28)) + 0.4999) * 255)
-        print(shaped.max())
-        shaped = shaped.astype(int)
-        print(shaped.max())
-        print(shaped)
-        print(shaped.shape)
-        image = Image.fromarray(shaped)
-        image.show()
+        print("Na vstupu je nákres MNIST číslice: ")
+        shaped = ((np.reshape(dato, (28, 28)) + 0.5) * 255)
+        plt.imshow(shaped, cmap='gray')
+        plt.plot()
+        plt.show()
+        plt.savefig(f"mnist_example{index}.png")
+        print(f"Obrázek MNISTu byl, pro případ nepřítomnosti grafického rozhraní, vytisknut do souboru ./mnist_exampe{index}.png")
     else:
-        pass
-    pass
+        print("Na vstupu je vektor: ", end="")
+        
+        if task == "Majority":
+            dato = (dato + 0.5) * output_size
+            dato = dato.astype(np.int32)
+        print(dato)
+    print(f"Očekávaný výstupní vektor je: {test_y[index]}")
+    if prediction:
+        label, vector = current_network.predict(dato)
+        print(f"Predikovaný výstup je: {label}, pravděpodobnosti dílčích výstupů jsou {np.around(vector[0], decimals=3)}.")
     input("\nStiskněte enter pro pokračování...")
 
 def selection(x):
-    global current_network, input_size, output_size
+    global current_network, input_size, output_size, task
     global train_x, train_y, test_x, test_y
     if len(x) == 0:
         return 0
@@ -350,11 +406,13 @@ def selection(x):
         predict()
     elif x[0] in ["9"]:
         train_x, train_y, test_x, test_y, input_size, output_size = None, None, None, None, -1, -1
+        task = None
     elif x[0] in ["8"]:
         del current_network
         current_network = None
         if train_x is None:
             input_size,  output_size = -1, -1
+            task = None
     elif x[0] in ["3"]:
         test_input()
     return 0

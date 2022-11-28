@@ -11,6 +11,15 @@
 import numpy as np
 
 def count_success(network, test_x, test_y):
+    """
+    Function predicts outputs for input test data and compares with expected outputs.
+
+    Parameters
+    ----------
+        network : NNET
+        test_x : np.array
+        test_y : np.array
+    """
     successful = 0
     for x, y in zip(test_x, test_y):
         try:

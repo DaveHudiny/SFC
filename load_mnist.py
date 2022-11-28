@@ -17,6 +17,10 @@ import numpy as np
 
 y_train = np_utils.to_categorical(y_train)
 y_test = np_utils.to_categorical(y_test)
+x_train = x_train[:2400]
+y_train = y_train[:2400]
+y_test = y_test[:1000]
+x_test = x_test[:1000]
 
 with open("train_x.pkl", 'wb') as save:
   pickle.dump(x_train, save, pickle.HIGHEST_PROTOCOL)
